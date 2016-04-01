@@ -21,6 +21,16 @@ const char* password = "allesdoofundso!";
 String show_text;
 bool show_enabled = true;
 int current_char = 0;
+// TODO create hash table
+// characters[];
+// bool[] A= "
+// 01110
+// 10001
+// 10001
+// 10001
+// 11111
+// 10001
+// 10001"
 
 void setup() {
   // Setup serial
@@ -78,6 +88,7 @@ void handleRoot() {
 * draws next image
 */
 void display_char(char current_char) {
+  // get values from hash table
 
   //leds[0] = CRGB::White;
   FastLED.show();

@@ -327,33 +327,25 @@ void handleRoot() {
 }
 
 /*
-* draws next image
+* draw next image
 */
 void display_char(char current_char) {
-  // get values from hash table
-  // char* data = hashMap.getValueOf(current_char);
-  if(hashMap.getValueOf(current_char)) {
-    char* data = hashMap.getValueOf(current_char);
-    Serial.println("Display ");
-    Serial.println(data);
-    Serial.println("LEDS:");
-    FastLED.clearData();
-    Serial.println(leds[0]);
-    Serial.println("In loop");
-    for(int i = 0; i < 35; i++) {
-      if(data[i] == '1') {
-        Serial.print("X");
-        Serial.print(i);
-        leds[i] = LETTER_COLOR;
+  if(show_enabled) {
+    // get values from hash table
+    if(hashMap.getValueOf(current_char)) {
+      char* data = hashMap.getValueOf(current_char);
+      FastLED.clearData();
+      for(int i = 0; i < NUM_LEDS; i++) {
+        if(data[i] == '1') {
+
+          leds[i] = LETTER_COLOR;
+        }
       }
+      FastLED.show();
+    } else {
+      Serial.println("Data not available.");
     }
-    Serial.println("\n\rShowing.");
-    FastLED.show();
-
-  } else {
-    Serial.println("Data not available.");
   }
-
 }
 
 void loop() {

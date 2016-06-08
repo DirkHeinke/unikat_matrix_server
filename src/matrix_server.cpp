@@ -8,7 +8,8 @@
 #include <LedTable.h>
 
 #define LED_PIN     0
-#define NUM_LEDS    35
+#define NUM_LEDS    245
+// #define NUM_LEDS    35
 #define BRIGHTNESS  32
 #define LED_TYPE    WS2812
 #define COLOR_ORDER GRB
@@ -18,8 +19,8 @@
 CRGB leds[NUM_LEDS];
 ESP8266WebServer server(80);
 Ticker renew_display;
-const char* ssid = "NixGeht";
-const char* password = "allesdoofundso!";
+const char* ssid = "UNIKAT";
+const char* password = "ardu1n0s";
 String show_text = "UNIKAT ";
 bool show_enabled = true;
 int current_char = 0;
@@ -110,10 +111,22 @@ void display_char(char current_char) {
   }
 
   // show data
+  int pixel = 0;
   FastLED.clearData();
-  for(int i = 0; i < NUM_LEDS; i++) {
+  for(int i = 0; i < 35; i++) {
+
     if(data[i] == '1') {
-      leds[i] = LETTER_COLOR;
+      leds[pixel*7] = LETTER_COLOR;
+      leds[pixel*7+1] = LETTER_COLOR;
+      leds[pixel*7+2] = LETTER_COLOR;
+      leds[pixel*7+3] = LETTER_COLOR;
+      leds[pixel*7+4] = LETTER_COLOR;
+      leds[pixel*7+5] = LETTER_COLOR;
+      leds[pixel*7+6] = LETTER_COLOR;
+    }
+    pixel = pixel + 7;
+    if(pixel > 34) {
+      pixel = pixel - 34;
     }
   }
   FastLED.show();

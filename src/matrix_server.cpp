@@ -9,7 +9,7 @@
 
 #define LED_PIN     0
 #define NUM_LEDS    245
-#define BRIGHTNESS  32
+#define BRIGHTNESS  128
 #define LED_TYPE    WS2812
 #define COLOR_ORDER GRB
 #define REFRESH_RATE 4    // one char every X second

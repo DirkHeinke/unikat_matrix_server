@@ -238,9 +238,9 @@ static const CharDataStreamTuple gCharDataStreamTable[] = {
     {'0',
     "01110"
     "10001"
-    "10011"
-    "10101"
-    "11001"
+    "10001"
+    "10001"
+    "10001"
     "10001"
     "01110"
     },
@@ -334,6 +334,15 @@ static const CharDataStreamTuple gCharDataStreamTable[] = {
     "01100"
     "00000"
     },
+    {'.',
+    "00000"
+    "00000"
+    "00000"
+    "00000"
+    "00000"
+    "01100"
+    "01100"
+    }
 
 };
 

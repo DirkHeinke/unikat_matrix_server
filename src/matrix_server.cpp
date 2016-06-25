@@ -3,16 +3,17 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPUpdateServer.h>
 #include <FastLED.h>
 #include <Ticker.h>
 #include <LedTable.h>
 
 #define LED_PIN     0
 #define NUM_LEDS    245
-#define BRIGHTNESS  128
+#define BRIGHTNESS  180
 #define LED_TYPE    WS2812
 #define COLOR_ORDER GRB
-#define REFRESH_RATE 4    // one char every X second
+#define REFRESH_RATE 2    // one char every X second
 #define LETTER_COLOR CRGB::Cyan
 
 CRGB leds[NUM_LEDS];
@@ -23,6 +24,8 @@ const char* password = "ardu1n0s";
 String show_text = "UNIKAT ";
 bool show_enabled = true;
 int current_char = 0;
+ESP8266HTTPUpdateServer httpUpdater;
+
 
 void handleRoot();
 char getNextChar();
@@ -47,6 +50,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   // Setup Server
+  httpUpdater.setup(&server);
   server.on("/", handleRoot);
   server.begin();
 

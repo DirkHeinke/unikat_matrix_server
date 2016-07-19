@@ -25,12 +25,16 @@ String show_text = "UNIKAT ";
 bool show_enabled = true;
 int current_char = 0;
 ESP8266HTTPUpdateServer httpUpdater;
+bool tick = false;
+int tickcounter = 0;
 
 
 void handleRoot();
 char getNextChar();
 void display_char(char current_char);
 void update();
+void tickfun();
+void blackout();
 
 void setup() {
   // Setup serial
@@ -54,12 +58,12 @@ void setup() {
   server.on("/", handleRoot);
   server.begin();
 
-  // Setup FastLed
+  // Setup FastLED
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setBrightness(BRIGHTNESS);
 
   // Setup Ticker
-  renew_display.attach(REFRESH_RATE, update);
+  renew_display.attach(REFRESH_RATE/10.0, tickfun);
 
  }
 
@@ -77,14 +81,27 @@ void handleRoot() {
       Serial.println(show_text);
   }
 
+  if(server.hasArg("enable")) {
+    if(server.arg("enable") == "on") {
+      show_enabled = true;
+    } else {
+      show_enabled = false;
+    }
+    
+  } 
 
 
-  // TODO currently showing and on/off button, speed?
+
   server.send(200, "text/html", "<form action='/' method='POST'>"
-    "<input type='text' name='text' value=" + show_text + "><br>"
-    "<input type='checkbox' name='on'>"
+    "<input type='text' name='text' value='" + show_text + "'><br>"
+    "On: <input type='radio' name='enable' value='on' checked><br>"
+    "Off: <input type='radio' name='enable' value='off'><br>"
     "<input type='submit'></form>");
 
+}
+
+void tickfun() {
+  tick = true;
 }
 
 void update() {
@@ -112,7 +129,7 @@ char getNextChar() {
 */
 void display_char(char current_char) {
   if(!show_enabled) {
-    return;
+    current_char = ' ';
   }
 
   // get values from table
@@ -126,7 +143,6 @@ void display_char(char current_char) {
   int pixel = 0;
   FastLED.clearData();
   for(int i = 0; i < 35; i++) {
-    Serial.println(data[i]);
 
     if(data[i] == '1') {
       leds[pixel*7] = LETTER_COLOR;
@@ -148,9 +164,30 @@ void display_char(char current_char) {
   FastLED.show();
 }
 
+void blackout() {
+  FastLED.clearData();
+  FastLED.show();
+}
+
 /**
  * Main Loop
  */
 void loop() {
   server.handleClient();
+
+  if(tick) {
+    tickcounter++;
+
+
+    if(tickcounter == 8) {
+      blackout();
+    }
+    if(tickcounter == 10) {
+      update();
+    }
+    FastLED.show();
+
+    tick = false;
+    tickcounter = tickcounter % 10;
+  }
 }

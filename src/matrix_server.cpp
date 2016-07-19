@@ -69,17 +69,22 @@ void setup() {
 void handleRoot() {
   Serial.println("Client connected");
 
-  // TODO currently showing and on/off button, speed?
-  server.send(200, "text/html", "<form action='/' method='POST'><input type='text' name='text'><input type='submit'></form>");
 
-  if(!server.hasArg("text")) {
-    return;
+  if(server.hasArg("text")) {
+      show_text = server.arg("text") + " ";
+      current_char = 0;
+      Serial.println("Text to display renewed:");
+      Serial.println(show_text);
   }
 
-  show_text = server.arg("text") + " ";
-  current_char = 0;
-  Serial.println("Text to display renewed:");
-  Serial.println(show_text);
+
+
+  // TODO currently showing and on/off button, speed?
+  server.send(200, "text/html", "<form action='/' method='POST'>"
+    "<input type='text' name='text' value=" + show_text + "><br>"
+    "<input type='checkbox' name='on'>"
+    "<input type='submit'></form>");
+
 }
 
 void update() {
@@ -121,6 +126,7 @@ void display_char(char current_char) {
   int pixel = 0;
   FastLED.clearData();
   for(int i = 0; i < 35; i++) {
+    Serial.println(data[i]);
 
     if(data[i] == '1') {
       leds[pixel*7] = LETTER_COLOR;

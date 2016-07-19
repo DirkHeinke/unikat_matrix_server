@@ -7,7 +7,13 @@ struct CharDataStreamTuple {
 
 static const CharDataStreamTuple gCharDataStreamTable[] = {
     {' ',
-    ""},
+    "00000"
+    "00000"
+    "00000"
+    "00000"
+    "00000"
+    "00000"
+    "00000"},
     {'A',
     "01110"
     "10001"

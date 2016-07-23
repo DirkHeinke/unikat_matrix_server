@@ -14,7 +14,7 @@
 #define LED_TYPE    WS2812
 #define COLOR_ORDER GRB
 #define REFRESH_RATE 2    // one char every X second
-#define LETTER_COLOR CRGB::Cyan
+// #define letter_color CRGB::Cyan
 
 CRGB leds[NUM_LEDS];
 ESP8266WebServer server(80);
@@ -27,12 +27,13 @@ int current_char_num = 0;
 ESP8266HTTPUpdateServer httpUpdater;
 bool tick = false;
 int tickcounter = 0;
-
+CRGB letter_color = CRGB(0, 255, 255);
 
 void handleRoot();
 char getNextChar();
 char getCurrentChar();
 void display_char(char current_char);
+byte getVal(char c);
 void update();
 void tickfun();
 void blackout();
@@ -88,8 +89,18 @@ void handleRoot() {
     } else {
       show_enabled = false;
     }
-    
   } 
+
+  if(server.hasArg("color")) {
+    String color = server.arg("color");
+
+    int number = (int) strtol( &color[1], NULL, 16);
+    int r = number >> 16;
+    int g = number >> 8 & 0xFF;
+    int b = number & 0xFF;
+
+    letter_color = CRGB(r, g, b);
+  }
 
 
 
@@ -97,24 +108,27 @@ void handleRoot() {
     "<input type='text' name='text' value='" + show_text + "'><br>"
     "On: <input type='radio' name='enable' value='on' checked><br>"
     "Off: <input type='radio' name='enable' value='off'><br>"
+    "Color: <input type='color' name='color' value='#00ffff'><br>"
     "<input type='submit'></form>");
 
 }
+
+
 
 void tickfun() {
   tick = true;
 }
 
 void update() {
-  char c = getNextChar();
-
-  display_char(c);
-
   current_char_num++;
   // loop if end of string is reached
   if(current_char_num >= show_text.length()) {
     current_char_num = 0;
   }
+
+  char c = getCurrentChar();
+
+  display_char(c);
 }
 
 /**
@@ -127,6 +141,7 @@ char getNextChar() {
   }
   return show_text[number];
 }
+
 
 char getCurrentChar() {
   return show_text[current_char_num];
@@ -153,13 +168,13 @@ void display_char(char current_char) {
   for(int i = 0; i < 35; i++) {
 
     if(data[i] == '1') {
-      leds[pixel*7] = LETTER_COLOR;
-      leds[pixel*7+1] = LETTER_COLOR;
-      leds[pixel*7+2] = LETTER_COLOR;
-      leds[pixel*7+3] = LETTER_COLOR;
-      leds[pixel*7+4] = LETTER_COLOR;
-      leds[pixel*7+5] = LETTER_COLOR;
-      leds[pixel*7+6] = LETTER_COLOR;
+      leds[pixel*7] = letter_color;
+      leds[pixel*7+1] = letter_color;
+      leds[pixel*7+2] = letter_color;
+      leds[pixel*7+3] = letter_color;
+      leds[pixel*7+4] = letter_color;
+      leds[pixel*7+5] = letter_color;
+      leds[pixel*7+6] = letter_color;
     }
 
     // cycle through all pixel 0, 7, 14, 21, 28, 1, 8, ...
@@ -177,7 +192,6 @@ void blackout() {
   FastLED.clearData();
   FastLED.show();
   FastLED.show(); 
-  Serial.println("Black");
 }
 
 /**
@@ -190,13 +204,8 @@ void loop() {
     tickcounter++;
 
     if(tickcounter == 9) {
-      Serial.println("Tick");
-      Serial.println(getCurrentChar());
-      Serial.println(getNextChar());
       if (getNextChar() == getCurrentChar()) {  
-        
         blackout();
-      blackout(); 
       }
     }
     if(tickcounter == 10) {

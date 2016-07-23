@@ -23,7 +23,7 @@ const char* ssid = "UNIKAT";
 const char* password = "ardu1n0s";
 String show_text = "UNIKAT ";
 bool show_enabled = true;
-int current_char = 0;
+int current_char_num = 0;
 ESP8266HTTPUpdateServer httpUpdater;
 bool tick = false;
 int tickcounter = 0;
@@ -31,6 +31,7 @@ int tickcounter = 0;
 
 void handleRoot();
 char getNextChar();
+char getCurrentChar();
 void display_char(char current_char);
 void update();
 void tickfun();
@@ -76,7 +77,7 @@ void handleRoot() {
 
   if(server.hasArg("text")) {
       show_text = server.arg("text") + " ";
-      current_char = 0;
+      current_char_num = 0;
       Serial.println("Text to display renewed:");
       Serial.println(show_text);
   }
@@ -109,10 +110,10 @@ void update() {
 
   display_char(c);
 
-  current_char++;
+  current_char_num++;
   // loop if end of string is reached
-  if(current_char >= show_text.length()) {
-    current_char = 0;
+  if(current_char_num >= show_text.length()) {
+    current_char_num = 0;
   }
 }
 
@@ -120,8 +121,15 @@ void update() {
  * get next char from text to display
  */
 char getNextChar() {
-  Serial.println(show_text[current_char]);
-  return show_text[current_char];
+  int number = current_char_num + 1;
+  if(number >= show_text.length()) {
+    number = 0;
+  }
+  return show_text[number];
+}
+
+char getCurrentChar() {
+  return show_text[current_char_num];
 }
 
 /**
@@ -162,11 +170,14 @@ void display_char(char current_char) {
   }
 
   FastLED.show();
+  FastLED.show();
 }
 
 void blackout() {
   FastLED.clearData();
   FastLED.show();
+  FastLED.show(); 
+  Serial.println("Black");
 }
 
 /**
@@ -178,14 +189,20 @@ void loop() {
   if(tick) {
     tickcounter++;
 
-
-    if(tickcounter == 8) {
-      blackout();
+    if(tickcounter == 9) {
+      Serial.println("Tick");
+      Serial.println(getCurrentChar());
+      Serial.println(getNextChar());
+      if (getNextChar() == getCurrentChar()) {  
+        
+        blackout();
+      blackout(); 
+      }
     }
     if(tickcounter == 10) {
       update();
     }
-    FastLED.show();
+    
 
     tick = false;
     tickcounter = tickcounter % 10;

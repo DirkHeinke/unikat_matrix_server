@@ -13,7 +13,7 @@
 #define BRIGHTNESS  180
 #define LED_TYPE    WS2812
 #define COLOR_ORDER GRB
-#define REFRESH_RATE 2    // one char every X second
+// #define REFRESH_RATE 2    // one char every X second
 // #define letter_color CRGB::Cyan
 
 CRGB leds[NUM_LEDS];
@@ -28,6 +28,7 @@ ESP8266HTTPUpdateServer httpUpdater;
 bool tick = false;
 int tickcounter = 0;
 CRGB letter_color = CRGB(0, 255, 255);
+uint32_t refresh_rate = 2000;
 
 void handleRoot();
 char getNextChar();
@@ -65,7 +66,7 @@ void setup() {
   FastLED.setBrightness(BRIGHTNESS);
 
   // Setup Ticker
-  renew_display.attach(REFRESH_RATE/10.0, tickfun);
+  renew_display.attach_ms(refresh_rate/10.0, tickfun);
 
  }
 
@@ -102,13 +103,21 @@ void handleRoot() {
     letter_color = CRGB(r, g, b);
   }
 
+  if(server.hasArg("speed")) {
+    refresh_rate = server.arg("speed").toInt();
+    Serial.println(refresh_rate);
+    Serial.println(server.arg("speed"));
 
+    renew_display.detach();
+    renew_display.attach_ms(refresh_rate/10.0, tickfun);
+  } 
 
   server.send(200, "text/html", "<form action='/' method='POST'>"
     "<input type='text' name='text' value='" + show_text + "'><br>"
     "On: <input type='radio' name='enable' value='on' checked><br>"
     "Off: <input type='radio' name='enable' value='off'><br>"
     "Color: <input type='color' name='color' value='#00ffff'><br>"
+    "Speed: <input type='number' name='speed' value='" + refresh_rate + "'><br>"
     "<input type='submit'></form>");
 
 }
